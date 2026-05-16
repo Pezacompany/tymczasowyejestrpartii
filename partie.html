@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partie Polityczne</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --card: #1c1f2a;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #f0f0f0;
+    --muted: #8b8fa8;
+    --accent: #5b7fff;
+    --accent2: #a78bfa;
+    --tag-kolo: #1e3a5f;
+    --tag-kolo-t: #7eb8f7;
+    --tag-klub: #1e4a2f;
+    --tag-klub-t: #6dd99a;
+    --tag-unofficial: #4a1e4a;
+    --tag-unofficial-t: #c084fc;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 4rem;
+  }
+
+  header {
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #12142080 0%, transparent 100%);
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.4rem;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .tabs-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem 0;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.55rem 1.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tab-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .tab-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  .tab-btn[data-tab="unofficial"].active { background: #7c3aed; border-color: #7c3aed; }
+  .tab-btn[data-tab="kolo"].active { background: #2563eb; border-color: #2563eb; }
+  .tab-btn[data-tab="klub"].active { background: #16a34a; border-color: #16a34a; }
+
+  .count-badge {
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .section-label {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* CARD */
+  .party-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .party-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0.6;
+  }
+
+  .party-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .logo-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--logo-bg, #1e2a4a);
+    border: 2px solid var(--logo-border, rgba(91,127,255,0.3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--logo-color, var(--accent));
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .card-title-block { flex: 1; min-width: 0; }
+
+  .party-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 0.2rem;
+  }
+
+  .party-abbr {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 0.4rem;
+  }
+
+  .type-badge.unofficial { background: var(--tag-unofficial); color: var(--tag-unofficial-t); }
+  .type-badge.kolo { background: var(--tag-kolo); color: var(--tag-kolo-t); }
+  .type-badge.klub { background: var(--tag-klub); color: var(--tag-klub-t); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 0;
+  }
+
+  .card-info { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .info-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 80px;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+
+  .info-value {
+    color: var(--text);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .info-value.names { color: #c4c8e0; }
+
+  .discord-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #818cf8;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: color 0.15s;
+    word-break: break-all;
+  }
+
+  .discord-link:hover { color: #a5b4fc; }
+
+  .discord-icon {
+    width: 16px; height: 16px;
+    fill: currentColor;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state svg { opacity: 0.3; margin-bottom: 1rem; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* ADD CARD */
+  .add-card {
+    background: transparent;
+    border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    min-height: 140px;
+    width: 100%;
+  }
+
+  .add-card:hover {
+    border-color: rgba(91,127,255,0.4);
+    color: var(--accent);
+    background: rgba(91,127,255,0.03);
+  }
+
+  .add-card .plus {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px dashed currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+  }
+
+  .add-card:hover .plus { transform: rotate(90deg); }
+
+  /* MODAL */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-bg.open { display: flex; }
+
+  .modal {
+    background: #1c1f2a;
+    border: 1px solid var(--border-hover);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .form-group { margin-bottom: 1rem; }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: #1c1f2a; color: var(--text); }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn-cancel {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .btn-add {
+    flex: 2;
+    padding: 0.7rem;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: opacity 0.15s;
+  }
+
+  .btn-add:hover { opacity: 0.85; }
+
+  .logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    padding: 6px;
+  }
+  .delete-btn { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Partie</h1>
+  <p>Rejestr ugrupowań parlamentarnych</p>
+</header>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-tab="unofficial" onclick="switchTab('unofficial')">
+    <span class="dot"></span> Koło Nieoficjalne
+    <span class="count-badge" id="count-unofficial">0</span>
+  </button>
+  <button class="tab-btn" data-tab="kolo" onclick="switchTab('kolo')">
+    <span class="dot"></span> Koło
+    <span class="count-badge" id="count-kolo">0</span>
+  </button>
+  <button class="tab-btn" data-tab="klub" onclick="switchTab('klub')">
+    <span class="dot"></span> Klub
+    <span class="count-badge" id="count-klub">0</span>
+  </button>
+</div>
+
+<div id="tab-unofficial" class="tab-content active">
+  <div class="section-label">Koła Nieoficjalne</div>
+  <div class="grid" id="grid-unofficial"></div>
+</div>
+
+<div id="tab-kolo" class="tab-content">
+  <div class="section-label">Koła Parlamentarne</div>
+  <div class="grid" id="grid-kolo"></div>
+</div>
+
+<div id="tab-klub" class="tab-content">
+  <div class="section-label">Kluby Parlamentarne</div>
+  <div class="grid" id="grid-klub"></div>
+</div>
+
+<script>
+  // ============================================================
+  //  DANE — tutaj dodajesz partie
+  //  Skopiuj obiekt i wypełnij pola, żeby dodać nową partię.
+  //
+  //  type: "unofficial" | "kolo" | "klub"
+  //  vices: tablica stringów, może być pusta []
+  //  discord: link lub "" jeśli brak
+  // ============================================================
+  const PARTIES = [
+
+    // --- PRZYKŁADOWE WPISY (usuń lub edytuj) ---
+
+    {
+      type:     "unofficial",
+      logo:     "przykladowe-nieoficjalne.png",
+      initials: "S",
+      name:     "SZABLON",
+      abbr:     "S",
+      leader:   "WAKAT",
+      vices:    ["WAKAT"],
+      discord:  "",
+      color:    "#a78bfa"
+    },
+
+    {
+      type:     "kolo",
+      logo:     "alternatywa.png",
+      initials: "T",
+      name:     "Tronfederacja",
+      abbr:     "T",
+      leader:   "Andrzej Moczygęba",
+      vices:    ["Damian Tusk","Maciej Wypitryj","Stanisław Pindolek"],
+      discord:  "https://discord.gg/AXUcEzKFex",
+      color:    "#5b7fff"
+    },
+
+    {
+      type:     "kolo",
+      logo:     "tronfedeacja.png",
+      initials: "A",
+      name:     "Alternatywa",
+      abbr:     "A",
+      leader:   "Roman Gwarny",
+      vices:    ["Sławomir Kozioł","Franciszek Ziętek"],
+      discord:  "https://discord.gg/CEtMkTPczc",
+      color:    "#5b7fff"
+    },
+
+    {
+      type:     "klub",
+      logo:     "pcr.png",
+      initials: "PL",
+      name:     "Polskie Centrum Rozwoju",
+      abbr:     "PCR",
+      leader:   "Mariusz Nawrocki, Jarosław Grzyboustny",
+      vices:    ["Jan Jakubowski","Dawid Trzask"],
+      discord:  "https://discord.gg/ZSTvP3d9pt",
+      color:    "#34d399"
+    },
+
+    {
+      type:     "klub",
+      logo:     "zpr.png",
+      initials: "PL",
+      name:     "Zjednoczona Partia Robotnicza",
+      abbr:     "ZPR",
+      leader:   "Filip Moskiewski, Adebayo Bakowski",
+      vices:    ["Krzysztof Konstankov"],
+      discord:  "https://discord.gg/H6Asn8rt34",
+      color:    "#34d399"
+    },
+
+    {
+      type:     "klub",
+      logo:     "kpn.png",
+      initials: "PL",
+      name:     "Konfederacja Prawicy Narodowej",
+      abbr:     "ZPR",
+      leader:   "Dominik Tarcza",
+      vices:    ["Jan Paweł Adamczewski", "Olgierd Dziadowicz"],
+      discord:  "https://discord.gg/H7PEAaYnx7",
+      color:    "#34d399"
+    }
+
+    // Dodaj kolejne wpisy tutaj, oddzielone przecinkiem ↑
+  ];
+  // ============================================================
+
+  const data = { unofficial: [], kolo: [], klub: [] };
+  PARTIES.forEach((p, i) => {
+    data[p.type].push({ ...p, id: i });
+  });
+
+  const typeLabels = {
+    unofficial: 'Koło Nieoficjalne',
+    kolo: 'Koło',
+    klub: 'Klub'
+  };
+
+  const typeClass = {
+    unofficial: 'unofficial',
+    kolo: 'kolo',
+    klub: 'klub'
+  };
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `${r},${g},${b}`;
+  }
+
+  function buildCard(party) {
+    const rgb = hexToRgb(party.color);
+    const viceLine = Array.isArray(party.vices)
+      ? party.vices.filter(Boolean).join(', ')
+      : (party.vices || '');
+
+    const discordHtml = party.discord
+      ? `<div class="info-row">
+          <span class="info-label">Discord</span>
+          <a href="${party.discord}" class="discord-link" target="_blank">
+            <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+            </svg>
+            Dołącz do serwera
+          </a>
+        </div>`
+      : '';
+
+    return `<div class="party-card" style="--card-accent: ${party.color};">
+      <div class="card-top">
+        <div class="logo-circle" style="border-color: rgba(${rgb},0.35);">
+          <img src="logos/${party.logo}" alt="${party.name}" onerror="this.style.display='none';this.parentElement.textContent='${party.initials}'">
+        </div>
+        <div class="card-title-block">
+          <div class="party-name">${party.name}</div>
+          ${party.abbr ? `<div class="party-abbr">(${party.abbr})</div>` : ''}
+          <span class="type-badge ${typeClass[party.type]}">${typeLabels[party.type]}</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-info">
+        ${party.leader ? `<div class="info-row">
+          <span class="info-label">Lider</span>
+          <span class="info-value names">${party.leader}</span>
+        </div>` : ''}
+        ${viceLine ? `<div class="info-row">
+          <span class="info-label">Wice-liderzy</span>
+          <span class="info-value names">${viceLine}</span>
+        </div>` : ''}
+        ${discordHtml}
+      </div>
+    </div>`;
+  }
+
+  function renderGrid(tab) {
+    const grid = document.getElementById('grid-' + tab);
+    const parties = data[tab];
+    if (parties.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8b8fa8" stroke-width="1.2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>Brak ugrupowań w tej zakładce.</p>
+      </div></div>`;
+    } else {
+      grid.innerHTML = parties.map(buildCard).join('');
+    }
+  }
+
+  function updateCounts() {
+    ['unofficial','kolo','klub'].forEach(tab => {
+      document.getElementById('count-' + tab).textContent = data[tab].length;
+    });
+  }
+
+  // Init
+  ['unofficial','kolo','klub'].forEach(renderGrid);
+  updateCounts();
+</script>
+</body>
+</html>
